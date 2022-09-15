@@ -7,60 +7,77 @@ function getComputerChoice() {
     } else if (selection == 2) {
         return "scissors";
     } else {
-        return "error";
+        return "error1";
     }
 }
 
-function playRound(user, computer) {
-    user = user.toLowerCase();
-    if (user == "rock") {
-        if (computer == "rock") {
-            return "It is a tie!";
-        } else if (computer == "paper") {
-            return "You loose! Paper beats rock!";
-        } else if (computer == "scissors") {
-            return "You win! Rock beats scissors!";
-        }
-    } else if (user == "paper") {
-        if (computer == "rock") {
-            return "You win! Paper beats rock!";
-        } else if (computer == "paper") {
-            return "It is a tie!";
-        } else if (computer == "scissors") {
-            return "You loose! Scissors beats paper!";
-        }
-    } else if (user == "scissors") {
-        if (computer == "rock") {
-            return "You loose! Rock beats scissors!";
-        } else if (computer == "paper") {
-            return "You win! Scissors beats paper!";
-        } else if (computer == "scissors") {
-            return "It is a tie!";
-        }
+function result(user, computer, winner) {
+    let message = '';
+    if (winner == 'user') {
+        userWins++;
+        message = `You win the round, ${user} beats ${computer}!`;
+        spanUserWins.textContent = userWins;
+    } else if (winner == 'computer') {
+        compWins++;
+        message = `You loose the round, ${computer} beats ${user}!`;
+        spanCompWins.textContent = compWins;
+    } else if (winner == 'tie') {
+        ties++;
+        message = `This round was a tie, you both chose ${user}!`;
+        spanTies.textContent = ties;
     }
-    return "error";
+    const pResult = document.querySelector('#lastRound');
+    pResult.textContent = message;
+
+    if (userWins + ties + compWins == 5) {
+        let resultMessage = "";
+
+        if (userWins > compWins) {
+            resultMessage = `You win! You won ${userWins} rounds, you lost ${compWins} rounds, and there were ${5-userWins-compWins} ties`;
+        } else if (userWins < compWins) {
+            resultMessage = `You loose! You won ${userWins} rounds, you lost ${compWins} rounds, and there were ${5-userWins-compWins} ties`;
+        } else if (userWins == compWins) {
+            resultMessage = `It is a tie! You won ${userWins} rounds, you lost ${compWins} rounds, and there were ${5-userWins-compWins} ties`;
+        }
+
+        document.querySelector('#result').textContent = resultMessage;
+
+        rock.removeEventListener('click', playRound);
+        paper.removeEventListener('click', playRound);
+        scissors.removeEventListener('click', playRound);
+    }
+
 }
 
-function game() {
-    let userWins = 0;
-    let compWins = 0;
-    for (let i = 0; i < 5; i++) {
-        let user = prompt("Please enter your choice of rock, paper or scissors! ");
-        let result = playRound(user, getComputerChoice());
-        if (result.slice(0, 8) == "You win!") {
-            userWins++;
-        } else if (result.slice(0, 8) == "You loos") {
-            compWins++;
-        }
-        console.log(result);
+function playRound(e) {
+    let computer = getComputerChoice();
+    user = e.target.id.toLowerCase();
+
+    if (user == computer) {
+        result(user, computer, 'tie');
+    } else if ((user == "rock" && computer == "scissors") || (user == "paper" && computer == "rock") || (user == "scissors" && computer == "paper")) {
+        result(user, computer, 'user');
+    } else if ((user == "rock" && computer == "paper") || (user == "paper" && computer == "scissors") || (user == "scissors" && computer == "rock")) {
+        result(user, computer, 'computer');
+    } else {
+        return "error2";
     }
-    if (userWins > compWins) {
-        return `You win! You won ${userWins} rounds, you lost ${compWins} rounds, and there were ${5-userWins-compWins} ties`;
-    } else if (userWins < compWins) {
-        return `You loose! You won ${userWins} rounds, you lost ${compWins} rounds, and there were ${5-userWins-compWins} ties`;
-    } else if (userWins == compWins) {
-        return `It is a tie! You won ${userWins} rounds, you lost ${compWins} rounds, and there were ${5-userWins-compWins} ties`;
-    }
+
 }
 
-alert(game());
+let userWins = 0;
+let compWins = 0;
+let ties = 0;
+
+const rock = document.querySelector('#rock');
+rock.addEventListener('click', playRound);
+
+const paper = document.querySelector('#paper');
+paper.addEventListener('click', playRound);
+
+const scissors = document.querySelector('#scissors');
+scissors.addEventListener('click', playRound);
+
+const spanUserWins = document.querySelector('#userWinCount');
+const spanTies = document.querySelector('#tieCount');
+const spanCompWins = document.querySelector('#compWinCount');
